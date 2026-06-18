@@ -30,6 +30,7 @@ export async function createUser(data) {
       email: data.email,
       name: data.name,
       age: data.age,
+      role: data.role || "user",
       passwordHash: data.passwordHash,
     },
     select: userSelect,

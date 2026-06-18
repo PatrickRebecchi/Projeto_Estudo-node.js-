@@ -252,6 +252,22 @@ input.invalid {
   opacity: 0.72;
 }
 
+.login-link {
+  margin: 1.25rem 0 0;
+  color: #64748b;
+  text-align: center;
+}
+
+.login-link a {
+  color: #2563eb;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
 .spinner {
   display: inline-block;
   width: 1rem;

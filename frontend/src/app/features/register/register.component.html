@@ -1,0 +1,54 @@
+<section class="register-page">
+  <form class="register-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="register-header">
+      <p class="eyebrow">Criar acesso</p>
+      <h1>Cadastre um usuário</h1>
+      <p>O primeiro usuário criado será administrador. Os próximos serão usuários comuns.</p>
+    </div>
+
+    <div class="field">
+      <label for="name">Nome</label>
+      <input id="name" type="text" formControlName="name" placeholder="Seu nome" [class.invalid]="name.invalid && name.touched" />
+      @if (name.invalid && name.touched) {
+        <small class="error-text">Informe o nome.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" formControlName="email" placeholder="seu@email.com" [class.invalid]="email.invalid && email.touched" />
+      @if (email.invalid && email.touched) {
+        <small class="error-text">Informe um e-mail válido.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="age">Idade</label>
+      <input id="age" type="number" formControlName="age" [class.invalid]="age.invalid && age.touched" />
+      @if (age.invalid && age.touched) {
+        <small class="error-text">Informe uma idade entre 0 e 120.</small>
+      }
+    </div>
+
+    <div class="field">
+      <label for="password">Senha</label>
+      <input id="password" type="password" formControlName="password" placeholder="Mínimo 6 caracteres" [class.invalid]="password.invalid && password.touched" />
+      @if (password.invalid && password.touched) {
+        <small class="error-text">A senha deve ter pelo menos 6 caracteres.</small>
+      }
+    </div>
+
+    @if (message) {
+      <p class="register-message">{{ message }}</p>
+    }
+
+    <button class="primary-button" type="submit" [disabled]="submitting">
+      {{ submitting ? 'Cadastrando...' : 'Criar usuário' }}
+    </button>
+
+    <p class="login-link">
+      Já tem uma conta?
+      <a routerLink="/login">Fazer login</a>
+    </p>
+  </form>
+</section>

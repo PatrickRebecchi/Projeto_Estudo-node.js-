@@ -54,6 +54,10 @@ export class AuthService {
     );
   }
 
+  register(request: CreateUserRequest): Observable<User> {
+    return this.http.post<User>(`${environment.apiUrl}/auth/register`, request);
+  }
+
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${environment.apiUrl}/users`);
   }

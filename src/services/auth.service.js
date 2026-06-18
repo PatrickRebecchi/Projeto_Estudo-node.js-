@@ -67,6 +67,7 @@ export async function createUserWithPassword(data) {
       email: data.email,
       name: data.name,
       age: data.age,
+      role: data.role,
       passwordHash,
     });
   } catch (error) {
@@ -76,6 +77,16 @@ export async function createUserWithPassword(data) {
 
     throw error;
   }
+}
+
+export async function registerUser(data) {
+  const userCount = await prisma.user.count();
+  const role = userCount === 0 ? "admin" : "user";
+
+  return createUserWithPassword({
+    ...data,
+    role,
+  });
 }
 
 export async function updateUserWithPassword(id, data) {
