@@ -1,0 +1,9 @@
+node_modules
+.env
+.env.local
+
+/generated/prisma
+dist
+frontend/.angular
+frontend/dist
+coverage

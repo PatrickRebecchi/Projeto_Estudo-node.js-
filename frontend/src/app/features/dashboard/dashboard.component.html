@@ -1,0 +1,171 @@
+<main class="dashboard-page">
+  <section class="dashboard-card">
+    <header class="dashboard-header">
+      <div>
+        <p class="eyebrow">Autenticado</p>
+        <h1>Bem-vindo, {{ user?.name }}</h1>
+        <p class="subtitle">Sua sessão está ativa e as próximas requisições enviarão o token JWT.</p>
+      </div>
+
+      <button class="danger-button" type="button" (click)="logout()">Sair</button>
+    </header>
+
+    <dl class="user-info">
+      <div>
+        <dt>E-mail</dt>
+        <dd>{{ user?.email }}</dd>
+      </div>
+      <div>
+        <dt>Perfil</dt>
+        <dd>{{ user?.role }}</dd>
+      </div>
+      <div>
+        <dt>Idade</dt>
+        <dd>{{ user?.age }}</dd>
+      </div>
+    </dl>
+
+    @if (!canManageUsers) {
+      <div class="alert">
+        Apenas administradores podem adicionar, editar, promover ou excluir usuários.
+      </div>
+    }
+
+    @if (canManageUsers) {
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Adicionar usuário</h2>
+            <p>Crie um novo acesso para a aplicação.</p>
+          </div>
+        </div>
+
+        <form class="form-grid" [formGroup]="createUserForm" (ngSubmit)="submitCreate()" novalidate>
+          <div class="field">
+            <label for="create-name">Nome</label>
+            <input id="create-name" type="text" formControlName="name" [class.invalid]="createName.invalid && createName.touched" />
+            @if (createName.invalid && createName.touched) {
+              <small class="error-text">Informe o nome.</small>
+            }
+          </div>
+
+          <div class="field">
+            <label for="create-email">E-mail</label>
+            <input id="create-email" type="email" formControlName="email" [class.invalid]="createEmail.invalid && createEmail.touched" />
+            @if (createEmail.invalid && createEmail.touched) {
+              <small class="error-text">Informe um e-mail válido.</small>
+            }
+          </div>
+
+          <div class="field">
+            <label for="create-age">Idade</label>
+            <input id="create-age" type="number" formControlName="age" [class.invalid]="createAge.invalid && createAge.touched" />
+            @if (createAge.invalid && createAge.touched) {
+              <small class="error-text">Informe uma idade entre 0 e 120.</small>
+            }
+          </div>
+
+          <div class="field">
+            <label for="create-password">Senha inicial</label>
+            <input id="create-password" type="password" formControlName="password" [class.invalid]="createPassword.invalid && createPassword.touched" />
+            @if (createPassword.invalid && createPassword.touched) {
+              <small class="error-text">A senha deve ter pelo menos 6 caracteres.</small>
+            }
+          </div>
+
+          <button class="primary-button" type="submit" [disabled]="saving">
+            {{ saving ? 'Salvando...' : 'Adicionar usuário' }}
+          </button>
+        </form>
+      </section>
+
+      @if (editingUser) {
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Editar cadastro</h2>
+              <p>Alterando: {{ editingUser.email }}</p>
+            </div>
+            <button class="ghost-button" type="button" (click)="cancelEdit()">Cancelar</button>
+          </div>
+
+          <form class="form-grid edit-form" [formGroup]="editUserForm" (ngSubmit)="submitEdit()" novalidate>
+            <div class="field">
+              <label for="edit-name">Nome</label>
+              <input id="edit-name" type="text" formControlName="name" [class.invalid]="editName.invalid && editName.touched" />
+            </div>
+
+            <div class="field">
+              <label for="edit-email">E-mail</label>
+              <input id="edit-email" type="email" formControlName="email" [class.invalid]="editEmail.invalid && editEmail.touched" />
+            </div>
+
+            <div class="field">
+              <label for="edit-age">Idade</label>
+              <input id="edit-age" type="number" formControlName="age" [class.invalid]="editAge.invalid && editAge.touched" />
+            </div>
+
+            <button class="primary-button" type="submit" [disabled]="saving">
+              {{ saving ? 'Salvando...' : 'Salvar alteração' }}
+            </button>
+          </form>
+        </section>
+      }
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Usuários</h2>
+            <p>Gerencie cadastros, perfis e exclusões do banco.</p>
+          </div>
+          <button class="secondary-button" type="button" (click)="loadUsers()" [disabled]="loading">
+            {{ loading ? 'Carregando...' : 'Atualizar lista' }}
+          </button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Idade</th>
+                <th>Perfil</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (userItem of users; track trackByUser($index, userItem)) {
+                <tr>
+                  <td>{{ userItem.name }}</td>
+                  <td>{{ userItem.email }}</td>
+                  <td>{{ userItem.age }}</td>
+                  <td>
+                    <span class="badge" [class.admin]="userItem.role === 'admin'">
+                      {{ userItem.role }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="actions">
+                      <button class="small-button" type="button" (click)="startEdit(userItem)">Editar</button>
+                      <button class="small-button" type="button" (click)="toggleRole(userItem)">
+                        {{ userItem.role === 'admin' ? 'Rebaixar' : 'Promover' }}
+                      </button>
+                      <button class="small-button danger-text" type="button" (click)="deleteUser(userItem)">
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (message) {
+      <p class="message">{{ message }}</p>
+    }
+  </section>
+</main>
