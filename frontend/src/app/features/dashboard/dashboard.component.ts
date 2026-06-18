@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, CreateUserRequest, UpdateUserRequest, User, UserRole } from '../../core/services/auth.service';
@@ -10,14 +10,17 @@ import { AuthService, CreateUserRequest, UpdateUserRequest, User, UserRole } fro
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private refreshTimer?: ReturnType<typeof setInterval>;
+  private initialLoadDone = false;
 
   user: User | null = null;
   users: User[] = [];
   editingUser: User | null = null;
   message = '';
+  loadError = '';
   loading = false;
   saving = false;
 
@@ -60,9 +63,21 @@ export class DashboardComponent implements OnInit {
       this.user = user;
 
       if (user?.role === 'admin') {
-        this.loadUsers();
+        this.startAutoRefresh();
+
+        if (!this.initialLoadDone) {
+          this.loadUsers();
+          this.initialLoadDone = true;
+        }
+      } else {
+        this.stopAutoRefresh();
+        this.users = [];
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.stopAutoRefresh();
   }
 
   get createEmail() {
@@ -97,9 +112,17 @@ export class DashboardComponent implements OnInit {
     return this.user?.role === 'admin';
   }
 
+  get totalUsers() {
+    return this.users.length;
+  }
+
   loadUsers(): void {
+    if (!this.canManageUsers || this.loading) {
+      return;
+    }
+
     this.loading = true;
-    this.message = '';
+    this.loadError = '';
 
     this.auth.getUsers().subscribe({
       next: (users) => {
@@ -107,7 +130,7 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: (error: string) => {
-        this.message = error;
+        this.loadError = error;
         this.loading = false;
       },
     });
@@ -125,11 +148,11 @@ export class DashboardComponent implements OnInit {
     const request: CreateUserRequest = this.createUserForm.getRawValue();
 
     this.auth.createUser(request).subscribe({
-      next: (createdUser) => {
-        this.users = [createdUser, ...this.users];
+      next: () => {
         this.createUserForm.reset({ age: 0 });
         this.saving = false;
         this.message = 'Usuário criado com sucesso.';
+        this.loadUsers();
       },
       error: (error: string) => {
         this.message = error;
@@ -164,11 +187,11 @@ export class DashboardComponent implements OnInit {
     const request: UpdateUserRequest = this.editUserForm.getRawValue();
 
     this.auth.updateUser(this.editingUser.id, request).subscribe({
-      next: (updatedUser) => {
-        this.users = this.users.map((item) => (item.id === updatedUser.id ? updatedUser : item));
+      next: () => {
         this.editingUser = null;
         this.saving = false;
         this.message = 'Cadastro atualizado com sucesso.';
+        this.loadUsers();
       },
       error: (error: string) => {
         this.message = error;
@@ -188,10 +211,10 @@ export class DashboardComponent implements OnInit {
     this.message = '';
 
     this.auth.updateUserRole(user.id, nextRole).subscribe({
-      next: (updatedUser) => {
-        this.users = this.users.map((item) => (item.id === updatedUser.id ? updatedUser : item));
+      next: () => {
         this.saving = false;
         this.message = 'Perfil atualizado com sucesso.';
+        this.loadUsers();
       },
       error: (error: string) => {
         this.message = error;
@@ -210,12 +233,12 @@ export class DashboardComponent implements OnInit {
 
     this.auth.deleteUser(user.id).subscribe({
       next: () => {
-        this.users = this.users.filter((item) => item.id !== user.id);
         if (this.editingUser?.id === user.id) {
           this.cancelEdit();
         }
         this.saving = false;
         this.message = 'Usuário excluído com sucesso.';
+        this.loadUsers();
       },
       error: (error: string) => {
         this.message = error;
@@ -229,7 +252,25 @@ export class DashboardComponent implements OnInit {
   }
 
   logout(): void {
+    this.stopAutoRefresh();
     this.auth.logout();
     this.router.navigateByUrl('/login');
+  }
+
+  private startAutoRefresh(): void {
+    if (this.refreshTimer) {
+      return;
+    }
+
+    this.refreshTimer = setInterval(() => {
+      this.loadUsers();
+    }, 5000);
+  }
+
+  private stopAutoRefresh(): void {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = undefined;
+    }
   }
 }

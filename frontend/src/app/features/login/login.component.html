@@ -1,50 +1,67 @@
 <section class="login-page">
-  <form class="login-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-    <div class="login-header">
-      <p class="eyebrow">Projeto API</p>
-      <h1>Acesse sua conta</h1>
-      <p>Entre para continuar no painel.</p>
-    </div>
+  <div class="login-shell">
+    <aside class="login-visual" aria-hidden="true">
+      <div class="visual-badge">Projeto API</div>
+      <h2>Gerencie seus usuários com segurança</h2>
+      <p>Acesse o painel administrativo, cadastre novos usuários e mantenha os dados atualizados.</p>
+      <div class="visual-cards">
+        <span>JWT</span>
+        <span>Angular</span>
+        <span>Prisma</span>
+      </div>
+    </aside>
 
-    <div class="field">
-      <label for="email">E-mail</label>
-      <input
-        id="email"
-        type="email"
-        formControlName="email"
-        placeholder="seu@email.com"
-        autocomplete="email"
-        [class.invalid]="email.invalid && email.touched"
-      />
-      @if (email.invalid && email.touched) {
-        <small class="error-text">Informe um e-mail válido.</small>
+    <form class="login-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="login-header">
+        <p class="eyebrow">Bem-vindo de volta</p>
+        <h1>Acesse sua conta</h1>
+        <p>Entre para continuar no painel administrativo.</p>
+      </div>
+
+      <div class="field">
+        <label for="email">E-mail</label>
+        <div class="input-wrap">
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+            [class.invalid]="email.invalid && email.touched"
+          />
+        </div>
+        @if (email.invalid && email.touched) {
+          <small class="error-text">Informe um e-mail válido.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <div class="input-wrap">
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Digite sua senha"
+            autocomplete="current-password"
+            [class.invalid]="password.invalid && password.touched"
+          />
+        </div>
+        @if (password.invalid && password.touched) {
+          <small class="error-text">A senha deve ter pelo menos 6 caracteres.</small>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <p class="auth-error">{{ errorMessage }}</p>
       }
-    </div>
 
-    <div class="field">
-      <label for="password">Senha</label>
-      <input
-        id="password"
-        type="password"
-        formControlName="password"
-        placeholder="Digite sua senha"
-        autocomplete="current-password"
-        [class.invalid]="password.invalid && password.touched"
-      />
-      @if (password.invalid && password.touched) {
-        <small class="error-text">A senha deve ter pelo menos 6 caracteres.</small>
-      }
-    </div>
-
-    @if (errorMessage) {
-      <p class="auth-error">{{ errorMessage }}</p>
-    }
-
-    <button class="primary-button" type="submit" [disabled]="submitting">
-      @if (submitting) {
-        <span class="spinner" aria-hidden="true"></span>
-      }
-      {{ submitting ? 'Entrando...' : 'Entrar' }}
-    </button>
-  </form>
+      <button class="primary-button" type="submit" [disabled]="submitting">
+        @if (submitting) {
+          <span class="spinner" aria-hidden="true"></span>
+        }
+        {{ submitting ? 'Entrando...' : 'Entrar no painel' }}
+      </button>
+    </form>
+  </div>
 </section>

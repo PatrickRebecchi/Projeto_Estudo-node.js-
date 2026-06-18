@@ -25,6 +25,21 @@
       </div>
     </dl>
 
+    <div class="stats-grid">
+      <div class="stat-card">
+        <strong>{{ totalUsers }}</strong>
+        <span>Usuários cadastrados</span>
+      </div>
+      <div class="stat-card">
+        <strong>{{ canManageUsers ? 'Admin' : 'Usuário' }}</strong>
+        <span>Perfil atual</span>
+      </div>
+      <div class="stat-card">
+        <strong>JWT</strong>
+        <span>Sessão ativa</span>
+      </div>
+    </div>
+
     @if (!canManageUsers) {
       <div class="alert">
         Apenas administradores podem adicionar, editar, promover ou excluir usuários.
@@ -119,49 +134,63 @@
             <p>Gerencie cadastros, perfis e exclusões do banco.</p>
           </div>
           <button class="secondary-button" type="button" (click)="loadUsers()" [disabled]="loading">
+            @if (loading) {
+              <span class="button-spinner" aria-hidden="true"></span>
+            }
             {{ loading ? 'Carregando...' : 'Atualizar lista' }}
           </button>
         </div>
 
         <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Idade</th>
-                <th>Perfil</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (userItem of users; track trackByUser($index, userItem)) {
+          @if (users.length) {
+            <table>
+              <thead>
                 <tr>
-                  <td>{{ userItem.name }}</td>
-                  <td>{{ userItem.email }}</td>
-                  <td>{{ userItem.age }}</td>
-                  <td>
-                    <span class="badge" [class.admin]="userItem.role === 'admin'">
-                      {{ userItem.role }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="actions">
-                      <button class="small-button" type="button" (click)="startEdit(userItem)">Editar</button>
-                      <button class="small-button" type="button" (click)="toggleRole(userItem)">
-                        {{ userItem.role === 'admin' ? 'Rebaixar' : 'Promover' }}
-                      </button>
-                      <button class="small-button danger-text" type="button" (click)="deleteUser(userItem)">
-                        Excluir
-                      </button>
-                    </div>
-                  </td>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Idade</th>
+                  <th>Perfil</th>
+                  <th>Ações</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (userItem of users; track trackByUser($index, userItem)) {
+                  <tr>
+                    <td>{{ userItem.name }}</td>
+                    <td>{{ userItem.email }}</td>
+                    <td>{{ userItem.age }}</td>
+                    <td>
+                      <span class="badge" [class.admin]="userItem.role === 'admin'">
+                        {{ userItem.role }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="actions">
+                        <button class="small-button" type="button" (click)="startEdit(userItem)">Editar</button>
+                        <button class="small-button" type="button" (click)="toggleRole(userItem)">
+                          {{ userItem.role === 'admin' ? 'Rebaixar' : 'Promover' }}
+                        </button>
+                        <button class="small-button danger-text" type="button" (click)="deleteUser(userItem)">
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <div class="empty-state">
+              <strong>Nenhum usuário encontrado</strong>
+              <p>Cadastre o primeiro usuário para começar a gerenciar o banco.</p>
+            </div>
+          }
         </div>
       </section>
+    }
+
+    @if (loadError) {
+      <p class="load-error">{{ loadError }}</p>
     }
 
     @if (message) {

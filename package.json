@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "db:seed": "node src/scripts/seed.js",
     "db:repair-age": "node src/scripts/repair-age.js",
+    "db:indexes": "node src/scripts/create-indexes.js",
     "prisma:generate": "prisma generate",
     "test": "node --test"
   },
